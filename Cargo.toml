@@ -1,0 +1,15 @@
+[package]
+name = "ive"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.72"
+byteorder = "1.4.3"
+egui = "0.22.0"
+egui-wgpu = "0.22.0"
+egui-winit = "0.22.0"
+env_logger = "0.10.0"
+pixels = "0.13.0"
+winit = "0.28.6"
+winit_input_helper = "0.14.1"

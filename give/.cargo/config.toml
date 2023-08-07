@@ -1,0 +1,9 @@
+[build]
+target = "riscv32i-unknown-none-elf"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+opt-level = 1
+panic = "abort"
