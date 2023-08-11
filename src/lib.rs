@@ -22,6 +22,8 @@ const FB_HEIGHT: u32 = 600;
 const WINDOW_WIDTH: u32 = 1024;
 const WINDOW_HEIGHT: u32 = 768;
 
+const GPU_SCROLLBACK: usize = 128;
+
 const TILE_SIZE: u32 = 16;
 
 #[derive(Debug)]
@@ -41,9 +43,15 @@ trait Memory {
     fn write(&mut self, addr: u32, val: Store);
 }
 
+struct RingBuffer<T> {
+    buf: Vec<T>,
+    len: usize,
+    head: usize,
+}
+
 struct Gui {
     window_open: bool,
-    gpu_log: Vec<String>,
+    gpu_log: RingBuffer<String>,
 }
 
 struct State {
@@ -57,12 +65,46 @@ struct State {
     cpu: Cpu,
 }
 
+impl<T> RingBuffer<T> {
+    fn new(len: usize) -> Self {
+        Self {
+            buf: Vec::new(),
+            len,
+            head: 0,
+        }
+    }
+
+    fn push(&mut self, value: T) {
+        if self.head == self.len {
+            let len = self.len / 2;
+            let _ = self.buf.drain(..len).collect::<Vec<_>>();
+            self.head = len;
+        }
+
+        if self.head >= self.buf.len() {
+            self.buf.push(value);
+        } else {
+            self.buf[self.head] = value;
+        }
+
+        self.head += 1;
+    }
+
+    fn vec(&mut self) -> &mut Vec<T> {
+        &mut self.buf
+    }
+}
+
 impl Gui {
     fn new() -> Self {
         Self {
             window_open: true,
-            gpu_log: Vec::new(),
+            gpu_log: RingBuffer::new(GPU_SCROLLBACK),
         }
+    }
+
+    fn log(&mut self, buf: Vec<String>) {
+        buf.iter().for_each(|l| self.gpu_log.push(l.to_string()));
     }
 
     fn ui(&mut self, ctx: &Context, cpu: &Cpu) {
@@ -84,7 +126,7 @@ impl Gui {
             .open(&mut self.window_open)
             .constrain(true)
             .show(ctx, |ui| {
-                let mut log = self.gpu_log.join("\n");
+                let mut log = self.gpu_log.vec().join("\n");
                 egui::ScrollArea::vertical()
                     .stick_to_bottom(true)
                     .show(ui, |ui| {
@@ -255,7 +297,7 @@ impl State {
             })
             .collect();
 
-        self.gui.gpu_log.extend(log);
+        self.gui.log(log);
         self.gpu_clear();
     }
 
