@@ -376,7 +376,7 @@ impl Cpu {
 
     fn reg_read(&mut self, reg: u8) -> u32 {
         let reg = reg as usize;
-        if reg > self.reg.len() {
+        if reg >= self.reg.len() {
             panic!("invalid register read");
         }
         self.reg[reg]
@@ -384,7 +384,7 @@ impl Cpu {
 
     fn reg_write(&mut self, reg: u8, val: u32) {
         let reg = reg as usize;
-        if reg > self.reg.len() {
+        if reg >= self.reg.len() {
             panic!("invalid register write");
         }
         self.reg[reg] = val;
