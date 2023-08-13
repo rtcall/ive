@@ -409,9 +409,6 @@ impl Cpu {
 
         self.pc += 4;
         inst.execute(self);
-        if self.pc == 0 {
-            return false;
-        }
-        true
+        return self.pc != 0;
     }
 }
