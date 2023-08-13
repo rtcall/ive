@@ -400,7 +400,7 @@ impl Cpu {
         self.bus.gpu.queue.clear();
     }
 
-    pub fn update(&mut self) -> bool {
+    pub fn update(&self) -> bool {
         self.bus.gpu.update
     }
 
